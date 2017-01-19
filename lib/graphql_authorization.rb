@@ -1,3 +1,4 @@
+require 'graphql_authorization/version'
 require 'graphql_authorization/instrumentation'
 require 'graphql_authorization/unauthorized'
 require 'graphql_authorization/ability'

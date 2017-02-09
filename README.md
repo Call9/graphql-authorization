@@ -1,6 +1,6 @@
 # graphql-authorization
 
-[![Gem Version](https://badge.fury.io/rb/graphql.svg)](https://rubygems.org/gems/graphql-authorization)
+[![Gem Version](https://badge.fury.io/rb/graphql-authorization.svg)](https://rubygems.org/gems/graphql-authorization)
 
 An authorization framework for [graphql-ruby](https://rmosolgo.github.io/graphql-ruby)
 

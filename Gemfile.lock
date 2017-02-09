@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    graphql_authorization (0.0.1)
+    graphql_authorization (0.0.2)
       graphql (~> 1.4.2)
       rails (~> 4.2.0)
 

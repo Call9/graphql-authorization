@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe GraphqlAuthorization::Ability do
+describe GraphQL::Authorization::Ability do
   before(:all) do
     BookType = GraphQL::ObjectType.define do
       name "Book"
@@ -41,7 +41,7 @@ describe GraphqlAuthorization::Ability do
 
   end
   it "doesn't allow black and white list" do
-    class AbilityExample < GraphqlAuthorization::Ability
+    class AbilityExample < GraphQL::Authorization::Ability
       def ability(user)
         allowed StoreType
         permit BookType, only: [:id], except: [:created_at]
@@ -51,7 +51,7 @@ describe GraphqlAuthorization::Ability do
   end
 
   it "allows explicit execution" do
-    class AbilityExample < GraphqlAuthorization::Ability
+    class AbilityExample < GraphQL::Authorization::Ability
       def ability(user)
         permit BookType, execute: true, only: [:id]
         permit StoreType, execute: false, only: [:id]
@@ -63,7 +63,7 @@ describe GraphqlAuthorization::Ability do
   end
 
   it "defaults to no allowed execution" do
-    class AbilityExample < GraphqlAuthorization::Ability
+    class AbilityExample < GraphQL::Authorization::Ability
       def ability(user)
         permit BookType, only: [:id]
       end
@@ -73,7 +73,7 @@ describe GraphqlAuthorization::Ability do
   end
 
   it "allows white list access" do
-    class AbilityExample < GraphqlAuthorization::Ability
+    class AbilityExample < GraphQL::Authorization::Ability
       def ability(user)
         permit BookType, execute: true, only: [:id,:created_at]
       end
@@ -86,9 +86,9 @@ describe GraphqlAuthorization::Ability do
   end
 
   it "allows function evaluation for execution" do
-    class AbilityExample < GraphqlAuthorization::Ability
+    class AbilityExample < GraphQL::Authorization::Ability
       def ability(user)
-        permit BookType, execute: -> (args) {args[:value] % 2 == 0}, only: GraphqlAuthorization::All
+        permit BookType, execute: -> (args) {args[:value] % 2 == 0}, only: GraphQL::Authorization::All
       end
     end
     ability = AbilityExample.new(1)
@@ -99,7 +99,7 @@ describe GraphqlAuthorization::Ability do
   end
 
   it "allows default access shorthand" do
-    class AbilityExample < GraphqlAuthorization::Ability
+    class AbilityExample < GraphQL::Authorization::Ability
       def ability(user)
         allowed BookType
       end
@@ -113,11 +113,11 @@ describe GraphqlAuthorization::Ability do
   end
 
   it "allows specification via block" do
-    class AbilityExample < GraphqlAuthorization::Ability
+    class AbilityExample < GraphQL::Authorization::Ability
       def ability(user)
         permit BookType do
           execute true if user > 5
-          access GraphqlAuthorization::All if user > 10
+          access GraphQL::Authorization::All if user > 10
         end
         permit StoreType do
           execute -> (args) { (user > 0) && (args[:big] == true)}
@@ -142,7 +142,7 @@ describe GraphqlAuthorization::Ability do
   end
 
   it "ignores access on unions as unions cannot be accessed" do
-    class AbilityExample < GraphqlAuthorization::Ability
+    class AbilityExample < GraphQL::Authorization::Ability
       def ability(user)
         allowed ItemsUnionType
       end
@@ -152,7 +152,7 @@ describe GraphqlAuthorization::Ability do
   end
 
   it "can handle fields from interfaces" do
-    class AbilityExample < GraphqlAuthorization::Ability
+    class AbilityExample < GraphQL::Authorization::Ability
       def ability(user)
         allowed CoffeType
       end

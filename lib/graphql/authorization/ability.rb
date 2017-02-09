@@ -1,4 +1,4 @@
-class GraphqlAuthorization::Ability
+class GraphQL::Authorization::Ability
   def initialize(user)
     @user = user
     @ability = {}
@@ -16,7 +16,7 @@ class GraphqlAuthorization::Ability
   #permits execution, all access by default
   def permit(type,options={})
     raise NameError.new("duplicate ability definition") if @ability.key? type
-    ability_object = GraphqlAuthorization::AbilityType.new(type,nil,{})
+    ability_object = GraphQL::Authorization::AbilityType.new(type,nil,{})
     if options.key?(:except) && options.key?(:only)
       raise ArgumentError.new("you cannot specify white list and black list")
     end
@@ -65,7 +65,7 @@ class GraphqlAuthorization::Ability
     if type.class == GraphQL::UnionType
       permit type, execute: true
     else
-      permit type, execute: true, only: GraphqlAuthorization::All
+      permit type, execute: true, only: GraphQL::Authorization::All
     end
   end
 

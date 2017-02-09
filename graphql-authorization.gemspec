@@ -1,11 +1,11 @@
 $:.push File.expand_path("../lib", __FILE__)
 
 # Maintain your gem's version:
-require "graphql_authorization/version"
+require "graphql/authorization/version"
 
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |s|
-  s.name        = "graphql_authorization"
+  s.name        = "graphql-authorization"
   s.version     = GraphqlAuthorization::VERSION
   s.authors     = ["Matthew Chang"]
   s.email       = ["matthew@callnine.com"]

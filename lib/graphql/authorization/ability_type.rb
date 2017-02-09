@@ -1,4 +1,4 @@
-GraphqlAuthorization::AbilityType = Struct.new("AbilityType", :type, :execute_permission, :access_permission) do
+GraphQL::Authorization::AbilityType = Struct.new("AbilityType", :type, :execute_permission, :access_permission) do
   def execute value
     self.execute_permission = value
   end
@@ -6,7 +6,7 @@ GraphqlAuthorization::AbilityType = Struct.new("AbilityType", :type, :execute_pe
     if self.type.class == GraphQL::UnionType
       raise ArgumentError.new "Specifying access on a union type which cannot be accessed"
     end
-    if value == GraphqlAuthorization::All
+    if value == GraphQL::Authorization::All
       self.access type.all_fields.map {|e| e.name.to_sym}, evaluator
     elsif value.class == Array
       self.access value.map {|e| [e,evaluator]}.to_h

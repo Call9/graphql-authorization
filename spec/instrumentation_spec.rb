@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe GraphqlAuthorization::Instrumentation do
+describe GraphQL::Authorization::Instrumentation do
   before(:all) do
     hashAccess = lambda do |key|
       ->(obj, _args, _ctx) { obj[key] }
@@ -67,13 +67,13 @@ describe GraphqlAuthorization::Instrumentation do
     end
 
     Schema = GraphQL::Schema.define do
-      instrument(:field, GraphqlAuthorization::Instrumentation.new)
+      instrument(:field, GraphQL::Authorization::Instrumentation.new)
       query QueryType
       mutation MutationType
     end
 
     AlwaysAllowSchema = GraphQL::Schema.define do
-      instrument(:field, GraphqlAuthorization::Instrumentation.new(always_allow_execute: true))
+      instrument(:field, GraphQL::Authorization::Instrumentation.new(always_allow_execute: true))
       query QueryType
       mutation MutationType
     end
@@ -103,7 +103,7 @@ describe GraphqlAuthorization::Instrumentation do
   end
 
   it 'rejects be default' do
-    class AbilityExample < GraphqlAuthorization::Ability
+    class AbilityExample < GraphQL::Authorization::Ability
       def ability(_user)
         allowed QueryType
       end
@@ -111,11 +111,11 @@ describe GraphqlAuthorization::Instrumentation do
     query = '{session(id: 1) { id }}'
     expect do
       @executeQuery.call query: query, user: 1, abilityClass: AbilityExample
-    end.to raise_error GraphqlAuthorization::Unauthorized
+    end.to raise_error GraphQL::Authorization::Unauthorized
   end
 
   it 'allows selection of fields if specified explicitly' do
-    class AbilityExample < GraphqlAuthorization::Ability
+    class AbilityExample < GraphQL::Authorization::Ability
       def ability(_user)
         allowed QueryType
         permit SessionType, execute: true, only: [:id, :field]
@@ -127,11 +127,11 @@ describe GraphqlAuthorization::Instrumentation do
     res = @executeQuery.call query: query, user: 1, abilityClass: AbilityExample
     expect do
       @executeQuery.call query: bad_query, user: 1, abilityClass: AbilityExample
-    end.to raise_error GraphqlAuthorization::Unauthorized
+    end.to raise_error GraphQL::Authorization::Unauthorized
   end
 
   it 'allows authorization on root types' do
-    class AbilityExample < GraphqlAuthorization::Ability
+    class AbilityExample < GraphQL::Authorization::Ability
       def ability(_user)
         permit QueryType do
           execute true
@@ -151,19 +151,19 @@ describe GraphqlAuthorization::Instrumentation do
     expect(res.dig('data', 'session', 'id')).to eq '1'
     expect do
       @executeQuery.call query: bad_query, user: 1, abilityClass: AbilityExample
-    end.to raise_error GraphqlAuthorization::Unauthorized
+    end.to raise_error GraphQL::Authorization::Unauthorized
     expect do
       res = @executeQuery.call query: bad_query2, user: 1, abilityClass: AbilityExample
       puts res
-    end.to raise_error GraphqlAuthorization::Unauthorized
+    end.to raise_error GraphQL::Authorization::Unauthorized
   end
 
   it 'allows selection of all' do
-    class AbilityExample < GraphqlAuthorization::Ability
+    class AbilityExample < GraphQL::Authorization::Ability
       def ability(_user)
         allowed QueryType
         allowed SessionType
-        permit ChatMessageType, execute: true, only: GraphqlAuthorization::All
+        permit ChatMessageType, execute: true, only: GraphQL::Authorization::All
       end
     end
     query = '{session(id: 1) { id field chat_messages {id content} }}'
@@ -172,7 +172,7 @@ describe GraphqlAuthorization::Instrumentation do
   end
 
   it 'properly checks nested types' do
-    class AbilityExample < GraphqlAuthorization::Ability
+    class AbilityExample < GraphQL::Authorization::Ability
       def ability(_user)
         allowed QueryType
         allowed SessionType
@@ -192,15 +192,15 @@ describe GraphqlAuthorization::Instrumentation do
     query = '{session(id: 1) { id chat_messages {id content session_id} }}'
     expect do
       @executeQuery.call query: query_bad, user: 1, abilityClass: AbilityExample
-    end.to raise_error GraphqlAuthorization::Unauthorized
+    end.to raise_error GraphQL::Authorization::Unauthorized
   end
 
   it 'allows functional evaluation for access' do
-    class AbilityExample < GraphqlAuthorization::Ability
+    class AbilityExample < GraphQL::Authorization::Ability
       def ability(user)
         allowed QueryType
         permit SessionType, execute: true do
-          access GraphqlAuthorization::All, ->(obj) { obj[:id] % 2 == user }
+          access GraphQL::Authorization::All, ->(obj) { obj[:id] % 2 == user }
         end
       end
     end
@@ -209,24 +209,24 @@ describe GraphqlAuthorization::Instrumentation do
     res = @executeQuery.call query: query, user: 1, abilityClass: AbilityExample
     expect do
       @executeQuery.call query: query, user: 2, abilityClass: AbilityExample
-    end.to raise_error GraphqlAuthorization::Unauthorized
+    end.to raise_error GraphQL::Authorization::Unauthorized
 
     query = '{session(id: 2) { id }}'
     # no error
     res = @executeQuery.call query: query, user: 0, abilityClass: AbilityExample
     expect do
       @executeQuery.call query: query, user: 1, abilityClass: AbilityExample
-    end.to raise_error GraphqlAuthorization::Unauthorized
+    end.to raise_error GraphQL::Authorization::Unauthorized
   end
 
   it "doesn't run querys with diallowed execution" do
-    class AbilityExample < GraphqlAuthorization::Ability
+    class AbilityExample < GraphQL::Authorization::Ability
       def ability(_user)
         allowed QueryType
         allowed MutationType
         permit FileCreateType do
           execute ->(args) { args[:content] > 10 }
-          access GraphqlAuthorization::All
+          access GraphQL::Authorization::All
         end
       end
     end
@@ -239,7 +239,7 @@ describe GraphqlAuthorization::Instrumentation do
     query = 'mutation{createFile(content: 9) { id }}'
     expect do
       @executeQuery.call query: query, user: 1, abilityClass: AbilityExample
-    end.to raise_error GraphqlAuthorization::Unauthorized
+    end.to raise_error GraphQL::Authorization::Unauthorized
     expect(@getFilesCreated.call).to eq 2
   end
 
@@ -250,7 +250,7 @@ describe GraphqlAuthorization::Instrumentation do
   end
 
   it 'allows the user to bypass execute requirements' do
-    class AbilityExample < GraphqlAuthorization::Ability
+    class AbilityExample < GraphQL::Authorization::Ability
       def ability(_user)
         allowed QueryType
         permit SessionType do
@@ -259,7 +259,7 @@ describe GraphqlAuthorization::Instrumentation do
         end
         allowed MutationType
         permit FileCreateType do
-          access GraphqlAuthorization::All
+          access GraphQL::Authorization::All
         end
       end
     end
@@ -273,6 +273,6 @@ describe GraphqlAuthorization::Instrumentation do
     query = '{session(id: 2) { id chat_messages {id}}}'
     expect do
       res = @executeQuery.call query: query, user: 1, abilityClass: AbilityExample # , schema: AlwaysAllowSchema
-    end.to raise_error GraphqlAuthorization::Unauthorized
+    end.to raise_error GraphQL::Authorization::Unauthorized
   end
 end

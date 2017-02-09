@@ -17,7 +17,7 @@
 #
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 require 'graphql'
-require 'graphql_authorization'
+require 'graphql/authorization'
 require 'byebug'
 
 RSpec.configure do |config|

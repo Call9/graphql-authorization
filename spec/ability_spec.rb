@@ -159,4 +159,32 @@ describe GraphQL::Authorization::Ability do
     end
     expect(AbilityExample.new(1).canAccess(CoffeType,:price)).to be_truthy
   end
+
+  it "supports arrays in the permit blocks" do
+    class AbilityExample < GraphQL::Authorization::Ability
+      def ability(user)
+        permit BookType do
+          access [:id,:created_at]
+        end
+      end
+    end
+    expect(AbilityExample.new(1).canAccess(BookType,:id)).to be_truthy
+    expect(AbilityExample.new(1).canAccess(BookType,:created_at)).to be_truthy
+    expect(AbilityExample.new(1).canAccess(BookType,:updated_at)).to be_falsey
+    expect(AbilityExample.new(1).canAccess(BookType,:pages)).to be_falsey
+  end
+
+  it "supports array arithmetic on All" do
+    class AbilityExample < GraphQL::Authorization::Ability
+      def ability(user)
+        permit BookType do
+          access all - [:pages]
+        end
+      end
+    end
+    expect(AbilityExample.new(1).canAccess(BookType,:id)).to be_truthy
+    expect(AbilityExample.new(1).canAccess(BookType,:created_at)).to be_truthy
+    expect(AbilityExample.new(1).canAccess(BookType,:updated_at)).to be_truthy
+    expect(AbilityExample.new(1).canAccess(BookType,:pages)).to be_falsey
+  end
 end
